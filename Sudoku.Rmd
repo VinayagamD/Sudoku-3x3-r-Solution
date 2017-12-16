@@ -1,0 +1,171 @@
+---
+title: "Sudoku Example"
+author: "Vinayagam"
+date: "12 October 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Sudoku Algorithm
+
+
+1) load the csv file of sudoku matrix of 9X9
+2) Check dimension of matrix is 9X9
+3) Check matrix value is not Int type or value is not between 1 to 9 then retrun false else retrun true
+4) Go through data.frame row and column and check unique is not of length 9 then return false else true
+5) Extract 3x3 Matrix from data and convert into vector and check unique is not of length 9 then return false else true
+6) Combine All steps for check valid matrix
+
+## R Codes Steps
+
+
+1)Step1
+```{r load csv file}
+sudoku_data <- read.csv('file:///F:/WorkSpace/RTraining/SudokuAssignment/SudokuAssignment/Sudoku.csv', header = F)
+
+```
+2) Step2
+```{r data_frame dimension}
+# Check dimension of data_frame is 9X9
+check_valid_sudoku_size<- function(sudoku){
+  return(nrow(sudoku)==9 && ncol(sudoku) == 9)
+}
+
+```
+3) Step3
+```{r data_frame valid value}
+#Check matrix value is not Int type or value is not between 1 to 9 then retrun false else retrun true
+
+check_valid_sudoku_data<- function(sudoku){
+  for(i in (1:nrow(sudoku))){
+    for(j in (1:ncol(sudoku))){
+      if(!is.integer(sudoku[i,j])|| (sudoku[i,j]) < 1 || (sudoku[i,j])>9  ){
+        return(FALSE)
+      }
+    }
+  }
+  return(TRUE)
+}
+
+```
+
+4) General Function
+
+```{r non valid unique sudoku column}
+check_non_valid_unique_length<-function(sudoku){
+  return (length(unique(sudoku))!= 9)
+}
+
+```
+
+5) Step 5
+
+```{r scan row and col unique}
+
+#Go through data.frame row and column and check unique is not of length 9 then return false else true
+check_row_col_value_unique<-function(sudoku){
+  for(i in (1:nrow(sudoku))){
+    if(check_non_valid_unique_length(sudoku[i,])){
+      return(F)
+    }
+  }
+  for(i in (1:ncol(sudoku))){
+    if(check_non_valid_unique_length(sudoku[,i])){
+      return(F)
+    }
+  }
+  return(T)
+}
+```
+
+6) Convert Sudoku sub Matrix to vector
+```{r Extract 3x3 matrix vector}
+extract_sudoku_matrix<-function(mdata, srow, erow, scol,ecol){
+  a<- array()
+  for(i in (srow:erow)){
+    for(j in (scol:ecol)){
+     
+        a <- c(a,mdata[i,j])
+      
+      
+    }
+  }
+  
+  return(a[-1])
+}
+
+```
+
+7) Step6
+
+```{r submatrix check valid}
+#Extract 3x3 Matrix from data and convert into vector and check unique is not of length 9 then return false else true 
+
+check_unqiue_matrix<- function(sudoku){
+  x<-1
+  for(i in seq(3,9,3)){
+    
+    y<-1
+    for(j in seq(3,9,3)){
+      
+      
+        if(check_non_valid_unique_length(extract_sudoku_matrix(sudoku,x,i,y,j)))         {
+        return(F)
+        }
+      y<-y+3
+    }
+    x<- x+3
+    
+  }
+  return(T)
+}
+
+```
+
+
+---
+
+## Code Execution Main
+
+```{r check valid sudoku}
+
+check_valid_sudoku<-function(sudoku) {
+  if(check_valid_sudoku_size(sudoku)){
+    if(check_valid_sudoku_data(sudoku)){
+      if(check_row_col_value_unique(sudoku)){
+        if(check_unqiue_matrix(sudoku)){
+          return(T)
+        }else{
+          return(F)
+        }
+      }else{
+        return(F)
+      }
+    }else{
+      return(F)
+    }
+  }else{
+    return(F)
+  }
+}
+
+```
+## Test Data
+
+```{r Test Data}
+check_valid_sudoku(sudoku = sudoku_data)
+
+```
+
+
+
